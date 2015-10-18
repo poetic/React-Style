@@ -1,6 +1,8 @@
 Package.describe({
   name: 'poetic:react-style',
   version: '0.0.1-rc.1',
+
+  summary: 'Set styles of a react component from multiple sources'
 });
 
 Package.onUse(function(api){
