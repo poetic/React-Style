@@ -1,53 +1,58 @@
-Styleable = function( component ){
-  if( !component.theme ){
-    component.prototype.theme = Base.styles;
-  }
-
-  component.prototype.styles = function( name, defaults ){
-    var styles = [];
-
-    if( this.theme && this.theme.base ){
-      styles.push( this.theme.base );
+StyleableFactory = function( theme ){
+  return function( component ){
+    /*
+     * React must do something with this on creation.  This doesn't work
+     *
+    if( !component.prototype.propTypes ){
+      component.prototype.propTypes = {};
     }
+    component.prototype.propTypes['styleOverride'] = React.PropTypes.object;
+    */
 
-    if( this.name ){
-      if( name ){
-        if( this.defaultStyles ){
-          styles.push( this.defaultStyles[name] );
-        }
-        if( this.theme[ this.name ] ){
-          styles.push( this.theme[ this.name  + '/' + name] );
+    component.prototype.styles = function( name, defaults ){
+      let defaultName = 'component';
+      var styles = [];
+
+      if( theme && theme.base ){
+        styles.push( theme.base );
+      }
+
+      if( this.name ){
+        if( name ){
+          if( this.defaultStyles ){
+            styles.push( this.defaultStyles[name] );
+          }
+          styles.push( theme[ this.name  + '/' + name] );
+        }else{
+          if( this.defaultStyles ){
+            styles.push( this.defaultStyles[defaultName] );
+          }
+          if( theme[ this.name ] ){
+            styles.push( theme[ this.name  ] );
+          }
         }
       }else{
         if( this.defaultStyles ){
-          styles.push( this.defaultStyles['component'] );
+          if( name ){
+            styles.push( this.defaultStyles[name] );
+          }else{
+            styles.push( this.defaultStyles[defaultName] );
+          }
         }
       }
 
-      if( this.theme[ this.name ] ){
+      if( this.props.styleOverride ){
         if( name ){
-          styles.push( this.theme[ this.name ][ name ] );
+          styles.push( this.props.styleOverride[name] );
         }else{
-          styles.push( this.theme[ this.name ]);
+          styles.push( this.props.styleOverride[defaultName] );
         }
       }
 
-    }else{
-      if( this.defaultStyles ){
-        if( name ){
-          styles.push( this.defaultStyles[name] );
-        }else{
-          styles.push( this.defaultStyles['component'] );
-        }
-      }
+
+      return styles;
     }
 
-    if( this.props.styles ){
-      styles.push( ...this.props.styles );
-    }
-
-    return styles;
-  }
-
-  return Radium( component );
-};
+    return Radium( component );
+  };
+}
